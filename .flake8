@@ -1,0 +1,5 @@
+[flake8]
+max-line-length = 310
+extend-ignore = E203, E704, E731
+per-file-ignores =
+    zerok/commitments/mkzg/ecc/__init__.py:F401,zerok/circuits/circuit.py:E741, zerok/commitments/mkzg/ecc/__init__.py:F401
