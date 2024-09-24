@@ -1,5 +1,5 @@
 # 0k
-A ZKML framework based on the Libra protocoll for proving Onnx and general Numpy computations built with pure Python. 
+A ZKML framework based on the Libra protocol for proving Onnx and general Numpy computations built with pure Python. 
 
 
 ## Introduction
