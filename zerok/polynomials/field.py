@@ -128,7 +128,9 @@ def qexp(base, exponent, modulus=PRIME_MODULO, precision_bits=PRECISION_BITS):
     Returns:
     FiniteField element: The result of the exponentiation.
     """
-    return quantization(dequantization(base.val) ** exponent)
+    if hasattr(base, "val"):
+        return quantization(dequantization(base.val) ** exponent)
+    return quantization(dequantization(base) ** exponent)
 
 
 def qdiv(a, b):
