@@ -1,5 +1,9 @@
-from zerok.polynomials.field import ModularInteger, FiniteField
+from zerok.polynomials.field import field_manager
+
 from typing import Union
+
+FiniteField = field_manager.FiniteField
+ModularInteger = field_manager._ModularInteger
 
 
 class LinearPoly:

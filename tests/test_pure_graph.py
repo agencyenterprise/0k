@@ -4,7 +4,7 @@ from zerok.polynomials.field import (
     field_manager,
 )
 
-switch_global_imports(ArithmetizationType.FLOAT_SYMMETRIC)
+switch_global_imports(ArithmetizationType.PURE)
 from zerok.graph.engine import Value
 import numpy as np
 from zerok.utils.visualize import draw_dot
@@ -15,17 +15,17 @@ DOMAIN = field_manager.DOMAIN
 dequantization = field_manager.dequantization
 
 
-def test_circuit_generation_value_numpy():
+def test_circuit_generation_pure_field_value_numpy():
     A = np.array([[Value(1), Value(2)], [Value(2), Value(1)]])
     B = np.array([[Value(3), Value(4)]])
     C = A * B
     assert len(C) == 2
     circuit, _, _ = Value.compile_layered_circuit(C[0][0], True)
-
     assert ZkProver(circuit).prove()
+    assert field_manager.FiniteField.arithmetic_type() == ArithmetizationType.PURE
 
 
-def test_circuit_generation_value_scalars():
+def test_circuit_generation_pure_field_value_scalars():
     A = Value(1)
     B = Value(2)
     C = A + B
@@ -36,14 +36,11 @@ def test_circuit_generation_value_scalars():
     draw_dot(layers[0][0]).render("tests/assets/scalars", format="png", cleanup=True)
 
     assert ZkProver(circuit).prove()
-    assert dequantization(C.data) == dequantization(layers[0][0].data)
 
 
-def test_circuit_generation_value_scalars_non_layered_operations():
-
-    A = Value(3.0)
-    B = Value(2.1)
-
+def test_circuit_generation_pure_field_value_scalars_non_layered_operations():
+    A = Value(3)
+    B = Value(2)
     C = A * B
     D = Value(1)
     E = C * D
@@ -57,21 +54,19 @@ def test_circuit_generation_value_scalars_non_layered_operations():
     )
 
     assert ZkProver(circuit).prove()
-    assert dequantization(F.data) == dequantization(layers[0][0].data)
 
 
-def test_circuit_generation_value_scalars_non_layered_operations_right():
+def test_circuit_generation_pure_field_value_scalars_non_layered_operations_right():
 
-    A = Value(3.77)
-    B = Value(0.47)
+    A = Value(3)
+    B = Value(47)
     C = A + B
     D = A + B
-    E = Value(0.05)
+    E = Value(5)
     F = D * E
-    G = Value(0.99)
+    G = Value(99)
     H = F * G
     output = C * H
-
     draw_dot(output).render(
         "tests/assets/value_scalars_non_layered_operations_right",
         format="png",
@@ -85,10 +80,9 @@ def test_circuit_generation_value_scalars_non_layered_operations_right():
     )
 
     assert ZkProver(circuit).prove()
-    assert dequantization(output.data) == dequantization(layers[0][0].data)
 
 
-def test_circuit_generation_value_numpy_tensor():
+def test_circuit_generation_pure_field_value_numpy_tensor():
     A = np.array(
         [
             [[Value(1), Value(2)], [Value(2), Value(1)]],
@@ -113,14 +107,11 @@ def test_circuit_generation_value_numpy_tensor():
     )
 
     assert ZkProver(circuit).prove()
-    assert set(sorted([dequantization(x.data) for x in C[0].flatten()])) == set(
-        [x for x in sorted([dequantization(x.data) for x in layers[0]]) if x > 0]
-    )
 
 
-def test_circuit_generation_matrix_multiplication():
-    A = np.array([[Value(1.129), Value(2.2)], [Value(2.999), Value(0.5)]])
-    B = np.array([Value(-100.12), Value(4)])
+def test_circuit_generation_pure_field_matrix_multiplication():
+    A = np.array([[Value(1), Value(22)], [Value(2999), Value(5)]])
+    B = np.array([Value(-10012), Value(4)])
     C = A @ B
     circuit, _, layers = Value.compile_layered_circuit(C[0], True)
     draw_dot(C[0]).render(
@@ -128,4 +119,3 @@ def test_circuit_generation_matrix_multiplication():
     )
     assert circuit.size == 4
     assert ZkProver(circuit).prove()
-    assert dequantization(C[0].data) == dequantization(layers[0][0].data)

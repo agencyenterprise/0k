@@ -1,4 +1,4 @@
-from zerok.polynomials.field import (
+from zerok.polynomials.symmetric_quantization_field import (
     ModularInteger,
     quantization,
     dequantization,

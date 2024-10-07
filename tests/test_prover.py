@@ -2,6 +2,11 @@ from zerok.graph.engine import Value
 from zerok.prover.prover import ZkProver
 from zerok.utils.visualize import draw_dot
 import numpy as np
+import onnx
+import onnxruntime
+import os
+from zerok.ops.onnx_utils import generate_small_iris_onnx_model
+from zerok.ops.from_onnx import from_onnx
 
 
 def test_circuit_generation_value_scalars():
@@ -26,16 +31,6 @@ def test_circuit_generation_matrix_multiplication():
     )
     assert circuit.size == 4
     assert ZkProver(circuit).prove()
-
-
-import numpy as np
-import onnx
-import onnxruntime
-import os
-from zerok.graph.engine import Value
-from zerok.ops.onnx_utils import generate_small_iris_onnx_model
-from zerok.ops.from_onnx import from_onnx
-from zerok.prover.prover import ZkProver
 
 
 def add_intermediate_layers_as_outputs(onnx_model):
@@ -74,7 +69,7 @@ def test_from_onnx_gemm_and_relu():
     session = onnxruntime.InferenceSession(onnx_model.SerializeToString())
     input_name = session.get_inputs()[0].name
     onnx_outputs = session.run(None, {input_name: dummy_input})
-
+    assert len(onnx_outputs) == len(onnx_model.graph.output)
     zerok_outputs = from_onnx(onnx_model, dummy_input)
 
     graph_output = np.sum(zerok_outputs[0])

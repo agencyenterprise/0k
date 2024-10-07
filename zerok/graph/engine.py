@@ -2,12 +2,14 @@ import math
 from uuid import uuid4
 
 
-from zerok.polynomials.field import (
-    ModularInteger,
-    qdiv,
-    qexp,
-    qmul,
-    qadd,
+from zerok.polynomials.field import field_manager
+
+ModularInteger, qdiv, qexp, qmul, qadd = (
+    field_manager.ModularInteger,
+    field_manager.qdiv,
+    field_manager.qexp,
+    field_manager.qmul,
+    field_manager.qadd,
 )
 
 from zerok.graph.preprocessor import (

@@ -8,7 +8,9 @@ from typing import Union
 from sympy.core.backend import Symbol
 from sympy import Poly, reduced, FiniteField, symbols
 from sympy.polys.domains.modularinteger import ModularInteger
-from zerok.polynomials.field import ModularInteger as FixedPointModularInteger
+from zerok.polynomials.field import field_manager
+
+FixedPointModularInteger = field_manager.ModularInteger
 from zerok.commitments.mkzg.ecc import (
     G1,
     G2,
@@ -48,7 +50,6 @@ def load_pp(filename: str = "power_of_tau.ptau") -> TPP:
     Returns:
         TPP: The public parameters
     """
-
     return dill.loads(dill.load(open(filename, "rb")))
 
 

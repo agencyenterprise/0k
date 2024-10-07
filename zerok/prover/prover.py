@@ -5,11 +5,7 @@ from zerok.circuits.circuit import (
     GateType,
 )
 import time
-from zerok.polynomials.field import (
-    FiniteField,
-    ModularInteger,
-    PRIME_MODULO as curve_order,
-)
+from zerok.polynomials.field import field_manager
 from typing import List, Tuple, Union, Dict
 from zerok.polynomials.poly import (
     LinearPoly,
@@ -30,11 +26,13 @@ from zerok.commitments.mkzg.mkzg import (
     load_pp,
 )
 
-DOMAIN = FiniteField(curve_order)
+FiniteField = field_manager.FiniteField
+DOMAIN = field_manager.FiniteField(field_manager.curve_order)
+ModularInteger = field_manager.ModularInteger
 
 
 def interpolate(
-    domain: FiniteField, zero_v: FiniteField, one_v: FiniteField
+    domain: FiniteField, zero_v: ModularInteger, one_v: ModularInteger
 ) -> LinearPoly:
     return LinearPoly(domain, one_v - zero_v, zero_v)
 
@@ -49,9 +47,9 @@ class ZkProver:
     ):
         self.domain: FiniteField = domain
         self.C: LayeredCircuit = circuit
-        self.zero = domain(0, True)
-        self.one = domain(1, True)
-        self.two = domain(2, True)
+        self.zero = domain.zero
+        self.one = domain.one
+        self.two = domain.two
         self.v_u: ModularInteger = self.zero
         self.v_v: ModularInteger = self.zero
         self.total_uv: int = self.zero
@@ -124,7 +122,7 @@ class ZkProver:
             if public_parameters["r_pp"] is not None:
                 self.random_polynomial_r_pp = load_pp(public_parameters["r_pp"])
             else:
-                self.random_polynomial_r_pp = KeyGen(2, 2, curve_order)
+                self.random_polynomial_r_pp = KeyGen(2, 2, field_manager.curve_order)
                 print(f"Keys generated for maskR in {time.time() - start} seconds")
             if public_parameters["zk_pp"] is not None:
                 self.zk_sumcheck_pp = load_pp(public_parameters["zk_pp"])
@@ -135,7 +133,7 @@ class ZkProver:
                 zkpp_size = zkpp_size + 2
                 print(f"Generating keys for zk_sumcheck_pp with size {zkpp_size}")
                 self.zk_sumcheck_pp = KeyGen(
-                    zkpp_size, 2, curve_order, generate_zk_sumcheck_pp=True
+                    zkpp_size, 2, field_manager.curve_order, generate_zk_sumcheck_pp=True
                 )
                 print(f"Keys generated in {time.time() - start} seconds")
 
@@ -881,7 +879,7 @@ class ZkProver:
         return (self.v_u, self.v_v)
 
     def random(self) -> ModularInteger:
-        return ModularInteger.random()
+        return field_manager.ModularInteger.random()
 
     def keygen_and_commit(self, input_bit_length: int, key_gen_time: float):
         self.input_mpz = [self.zero] * ((1 << input_bit_length) + 1)
@@ -909,7 +907,9 @@ class ZkProver:
         if self.mkzg:
             if len(self.C.circuit) - 1 != layer_id:
                 self.r_f_R = commit_random_polynomial_R(
-                    maskR_gmp, self.random_polynomial_r_pp, modulo=curve_order
+                    maskR_gmp,
+                    self.random_polynomial_r_pp,
+                    modulo=field_manager.curve_order,
                 )
         for i in range(6):
             self.preR[i] = self.maskR[i]
@@ -965,7 +965,7 @@ class ZkProver:
             self.r_f_mask_poly = commit_zk_sumcheck_polynomial(
                 self.maskpoly_gmp,
                 self.zk_sumcheck_pp,
-                modulo=curve_order,
+                modulo=field_manager.curve_order,
             )
 
     def generate_maskpoly_after_rho(self, length: int, degree: int):
@@ -1102,7 +1102,7 @@ class ZkProver:
     ) -> ModularInteger:
         output = [self.domain.zero] * output_size
         for i in range(output_size):
-            output[i] = ModularInteger(output_raw[i], False)
+            output[i] = field_manager.ModularInteger(output_raw[i], False)
         for i in range(r_0_size):
             for j in range(output_size >> 1):
                 output[j] = (
@@ -1308,7 +1308,7 @@ class ZkProver:
                         self.preR,
                         random_point,
                         self.random_polynomial_r_pp,
-                        curve_order,
+                        field_manager.curve_order,
                     )
 
                     self.transcript.append_curve_point(
@@ -1322,7 +1322,7 @@ class ZkProver:
                         evaluation,
                         openings,
                         self.random_polynomial_r_pp,
-                        curve_order,
+                        field_manager.curve_order,
                     )
                     random_point = [*self.r_u, *self.r_v, r_c[0]]
                     half_maskpoly = len(self.maskpoly) // 2
@@ -1342,7 +1342,7 @@ class ZkProver:
                         self.maskpoly_gmp,
                         random_point,
                         self.zk_sumcheck_pp,
-                        curve_order,
+                        field_manager.curve_order,
                     )
                     self.transcript.append_curve_point(
                         b"maskpoly_commitment", self.r_f_mask_poly
@@ -1355,7 +1355,7 @@ class ZkProver:
                         evaluation,
                         openings,
                         self.zk_sumcheck_pp,
-                        curve_order,
+                        field_manager.curve_order,
                     )
             self.one_minus_r_u = [self.domain.zero] * previous_bit_len
             self.one_minus_r_v = [self.domain.zero] * previous_bit_len
