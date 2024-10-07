@@ -133,7 +133,10 @@ class ZkProver:
                 zkpp_size = zkpp_size + 2
                 print(f"Generating keys for zk_sumcheck_pp with size {zkpp_size}")
                 self.zk_sumcheck_pp = KeyGen(
-                    zkpp_size, 2, field_manager.curve_order, generate_zk_sumcheck_pp=True
+                    zkpp_size,
+                    2,
+                    field_manager.curve_order,
+                    generate_zk_sumcheck_pp=True,
                 )
                 print(f"Keys generated in {time.time() - start} seconds")
 
@@ -1057,7 +1060,13 @@ class ZkProver:
         return ret
 
     def generate_randomness(self, size: int, label: str) -> List[ModularInteger]:
-        return self.transcript.get_sympy_ff_challenges(label.encode(), size)
+        randomness = self.transcript.get_sympy_ff_challenges(label.encode(), size)
+        if (
+            FiniteField.arithmetic_type()
+            == field_manager.ArithmetizationType.FLOAT_ASYMMETRIC
+        ):
+            randomness = [ModularInteger(x % 2**5 - 1, False) for x in randomness]
+        return randomness
 
     def beta_init(
         self,

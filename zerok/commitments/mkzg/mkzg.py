@@ -152,6 +152,8 @@ def SequencialKeyGen(
     else:
         exponents_list = list(product(range(max_degree + 1), repeat=num_variables))
     Wn_d_g1 = power_of_tau_step(G1, exponents_list, t, modulo)
+    # @TODO: Remove PSStore and use a dict directly to prevent
+    # import error when not having the 0k package installed
     G1PK = (G1, PPStore(Wn_d_g1, pp_type=pp_type))
     Wn_d_g2 = power_of_tau_step(G2, exponents_list, t, modulo)
     G2PK = (G2, PPStore(Wn_d_g2, pp_type=pp_type))

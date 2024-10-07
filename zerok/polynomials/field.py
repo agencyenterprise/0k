@@ -125,7 +125,7 @@ class ModularArithmeticManager:
         self.PRECISION_THRESHOLD = PRECISION_THRESHOLD
         self.PRECISION_BITS = PRECISION_BITS
         self.NEGATIVE_POINT = NEGATIVE_POINT
-
+        self.ArithmetizationType = ArithmetizationType
         # Update globals dynamically
         globals().update(
             {
@@ -154,6 +154,7 @@ class ModularArithmeticManager:
                 "PRECISION_THRESHOLD": PRECISION_THRESHOLD,
                 "PRECISION_BITS": PRECISION_BITS,
                 "NEGATIVE_POINT": NEGATIVE_POINT,
+                "ArithmetizationType": ArithmetizationType,
             }
         )
 

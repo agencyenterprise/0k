@@ -1,6 +1,7 @@
 from zerok.commitments.mkzg.ecc import curve_order
 from zerok.polynomials.utils.base import FP16x16Base
 import random
+from zerok.polynomials.types import ArithmetizationType
 
 PRIME_MODULO = curve_order  # 2**255 - 19
 PRECISION_BITS = 64
@@ -11,6 +12,8 @@ PRECISION_THRESHOLD = 3.999999999999999999999999999999999999999999999999
 
 
 class ModularInteger(FP16x16Base):
+    arithmetization_type: ArithmetizationType = ArithmetizationType.FLOAT_SYMMETRIC
+
     def __init__(self, x, scale=True):
         sign = x < 0
         if scale:
@@ -25,13 +28,18 @@ class ModularInteger(FP16x16Base):
     @staticmethod
     def random():
         # @TODO: Implement a better random number generator
-        return ModularInteger(random.randint(0, 2**16 - 1))
+        return ModularInteger(random.randint(0, 2**8 - 1), scale=False)
+
+    @staticmethod
+    def arithmetic_type() -> ArithmetizationType:
+        return ArithmetizationType.PURE
 
 
 class FiniteField:
     zero = ModularInteger(0)
     one = ModularInteger(1)
     two = ModularInteger(2)
+    arithmetization_type: ArithmetizationType = ArithmetizationType.FLOAT_SYMMETRIC
 
     def __init__(self, prime_modulo):
         self.prime_modulo = prime_modulo
@@ -51,6 +59,10 @@ class FiniteField:
 
     def characteristic(self):
         return self.prime_modulo
+
+    @staticmethod
+    def arithmetic_type() -> ArithmetizationType:
+        return ArithmetizationType.PURE
 
 
 def qdiv(a: ModularInteger, b: ModularInteger) -> ModularInteger:
