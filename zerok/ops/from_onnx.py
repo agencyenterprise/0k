@@ -8,17 +8,17 @@ from zerok.ops import elementwise, gemm, conv
 onnx_to_op = {"Gemm": gemm.Gemm, "Relu": elementwise.ElementWise, "Conv": conv.Conv}
 
 
-def from_onnx(onnx_model, input_data):
+def from_onnx(onnx_model, input_data, base_class=Value):
 
     calculated_values = {}
 
     for initializer in onnx_model.graph.initializer:
         tensor = onnx.numpy_helper.to_array(initializer)
-        calculated_values[initializer.name] = np.vectorize(Value)(tensor)
+        calculated_values[initializer.name] = np.vectorize(base_class)(tensor)
 
     # store input value
     input_name = onnx_model.graph.input[0].name
-    calculated_values[input_name] = np.vectorize(Value)(input_data)
+    calculated_values[input_name] = np.vectorize(base_class)(input_data)
 
     for node in onnx_model.graph.node:
         # print(node.name)

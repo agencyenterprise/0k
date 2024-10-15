@@ -64,7 +64,6 @@ def main():
     )
     layered_circuit, _ = Value.compile_layered_circuit(graph_output)
 
-    start = time.time()
     if use_mkzg:
         public_parameters = {
             "r_pp": "./tests/assets/random_polynomial_r_powers_of_tau.ptau",
@@ -79,13 +78,22 @@ def main():
     else:
         prover = ZkProver(layered_circuit, mkzg=False)
         verifier = ZkVerifier(layered_circuit, mkzg=False)
+    start = time.time()
     assert prover.prove()
-    print(f"Time to prove: {time.time() - start}")
+    prover_time = time.time() - start
+    print(f"Time to prove: {prover_time}")
     proof_transcript = prover.proof_transcript.to_bytes()
     print(f"Time to prove: {time.time() - start}")
+
     start = time.time()
     verifier.run_verifier(proof_transcript=proof_transcript)
     print(f"Time to verify: {time.time() - start}")
+    verifier_time = time.time() - start
+    prover_time_expander, verifier_time_expander = 2161, 2631
+    print(f"Expander is {(prover_time*1e6) / prover_time_expander}x faster for prover")
+    print(
+        f"Expander is {(verifier_time*1e6) / verifier_time_expander}x faster for verifier"
+    )
     if use_noir:
         verifier.get_noir_transcript()
         subprocess.call(

@@ -162,3 +162,14 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 .vscode
+
+# Added by cargo
+
+/target
+a.json
+b.py
+c.py
+d.py
+circuit.txt
+witness.txt
+witness_solver.txt
