@@ -129,34 +129,35 @@ def add_intermediate_layers_as_outputs(onnx_model):
     return onnx_model
 
 
-if "iris_model.onnx" not in os.listdir("tests/assets/"):
-    generate_small_iris_onnx_model(onnx_output_path="tests/assets/iris_model.onnx")
+# if "iris_model.onnx" not in os.listdir("tests/assets/"):
+#     generate_small_iris_onnx_model(onnx_output_path="tests/assets/iris_model.onnx")
 
-onnx_model = add_intermediate_layers_as_outputs(
-    onnx.load("tests/assets/iris_model.onnx")
-)
+# onnx_model = add_intermediate_layers_as_outputs(
+#     onnx.load("tests/assets/iris_model.onnx")
+# )
 
-# Create a dummy input
-dummy_input = [[1, 2]]  # np.random.randn(1, 2).astype(np.float32)
+# # Create a dummy input
+# dummy_input = [[1, 2]]  # np.random.randn(1, 2).astype(np.float32)
 
-# Run the model through onnx inference session
-session = onnxruntime.InferenceSession(onnx_model.SerializeToString())
-input_name = session.get_inputs()[0].name
-onnx_outputs = session.run(None, {input_name: dummy_input})
-assert len(onnx_outputs) == len(onnx_model.graph.output)
-zerok_outputs = from_onnx(onnx_model, dummy_input, base_class=Value)
+# # Run the model through onnx inference session
+# session = onnxruntime.InferenceSession(onnx_model.SerializeToString())
+# input_name = session.get_inputs()[0].name
+# onnx_outputs = session.run(None, {input_name: dummy_input})
+# assert len(onnx_outputs) == len(onnx_model.graph.output)
+# zerok_outputs = from_onnx(onnx_model, dummy_input, base_class=Value)
 
 
-dag = zerok_outputs[0][0][0]
+# dag = zerok_outputs[0][0][0]
+# print(dag.to_json())
+# with open("a.json", "w") as f:
+#     d = {
+#         "dag": json.loads(zerok_outputs[0][0][0].to_json()),
+#         "witness": [str(x) for x in dag_variable_list],
+#     }
+#     f.write(json.dumps(d))
+# print(dag.data)
+dag = Value(1) * Value(2)
 print(dag.to_json())
-with open("a.json", "w") as f:
-    d = {
-        "dag": json.loads(zerok_outputs[0][0][0].to_json()),
-        "witness": [str(x) for x in dag_variable_list],
-    }
-    f.write(json.dumps(d))
-print(dag.data)
-
 
 from zerok_template import create_zerok_compiler_file_content, execute_zerok_compiler
 
